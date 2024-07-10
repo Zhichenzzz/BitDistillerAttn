@@ -6,7 +6,7 @@ export GLOO_SOCKET_IFNAME="lo"
 export NCCL_SOCKET_IFNAME="lo"
 export WANDB_DISABLED=true  
 export TOKENIZERS_PARALLELISM=false
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0,1
 
 deepspeed train4attn.py \
     --model_name_or_path $MODEL_PATH \
