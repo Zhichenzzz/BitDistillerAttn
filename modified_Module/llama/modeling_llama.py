@@ -86,7 +86,7 @@ class Round(Function):
         return grad_input
     
 class SteIntAsymQuantizer(nn.Module):
-    def __init__(self, q_group_size=128, quant_bit=16):
+    def __init__(self, q_group_size=128, quant_bit=2):
         super().__init__()
         self.q_group_size = q_group_size
         self.bit = quant_bit
@@ -668,11 +668,11 @@ class LlamaSdpaAttention(LlamaAttention):
         cos, sin = self.rotary_emb(value_states, position_ids)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
 
-        if q_len == 1:
-            if self.config.quantize_k:
-                key_states = self.k_quantizer(key_states)
-            if self.config.quantize_v:
-                value_states = self.v_quantizer(value_states)
+        # if q_len == 1:
+        if self.config.quantize_k:
+            key_states = self.k_quantizer(key_states)
+        if self.config.quantize_v:
+            value_states = self.v_quantizer(value_states)
 
 
         if past_key_value is not None:
@@ -687,15 +687,15 @@ class LlamaSdpaAttention(LlamaAttention):
         if attention_mask is not None:
             causal_mask = causal_mask[:, :, :, : key_states.shape[-2]]
         
-        if q_len == 1 :
-            attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+        # if q_len == 1 :
+        #     attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
 
-            if attention_mask is not None:
-                attn_weights = attn_weights + causal_mask
+        #     if attention_mask is not None:
+        #         attn_weights = attn_weights + causal_mask
 
-            # upcast attention to fp32
-            attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-            attn_weights = nn.functional.dropout(attn_weights, p=self.attention_dropout, training=self.training)
+        #     # upcast attention to fp32
+        #     attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        #     attn_weights = nn.functional.dropout(attn_weights, p=self.attention_dropout, training=self.training)
 
             # sparsity_ratio = self.config.sparsity_ratio
             # if sparsity_ratio != 0 and self.layer_idx >= 2:
@@ -714,38 +714,38 @@ class LlamaSdpaAttention(LlamaAttention):
             #     elif sparsity_ratio == 1:
             #         attn_weights = torch.zeros_like(attn_weights)
 
-            attn_output = torch.matmul(attn_weights, value_states)
-            if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
-                raise ValueError(
-                    f"`attn_output` should be of size {(bsz, self.num_heads, q_len, self.head_dim)}, but is"
-                    f" {attn_output.size()}"
-                )
-            attn_output = attn_output.transpose(1, 2).contiguous()
-            attn_output = attn_output.reshape(bsz, q_len, -1)
+            # attn_output = torch.matmul(attn_weights, value_states)
+            # if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
+            #     raise ValueError(
+            #         f"`attn_output` should be of size {(bsz, self.num_heads, q_len, self.head_dim)}, but is"
+            #         f" {attn_output.size()}"
+            #     )
+            # attn_output = attn_output.transpose(1, 2).contiguous()
+            # attn_output = attn_output.reshape(bsz, q_len, -1)
 
 
-        else:
-            # SDPA with memory-efficient backend is currently (torch==2.1.2) bugged with non-contiguous inputs with custom attn_mask,
-            # Reference: https://github.com/pytorch/pytorch/issues/112577.
-            if query_states.device.type == "cuda" and causal_mask is not None:
-                query_states = query_states.contiguous()
-                key_states = key_states.contiguous()
-                value_states = value_states.contiguous()
-            
-            # We dispatch to SDPA's Flash Attention or Efficient kernels via this `is_causal` if statement instead of an inline conditional assignment
-            # in SDPA to support both torch.compile's dynamic shapes and full graph options. An inline conditional prevents dynamic shapes from compiling.
-            is_causal = True if causal_mask is None and q_len > 1 else False
+        # else:
+        # SDPA with memory-efficient backend is currently (torch==2.1.2) bugged with non-contiguous inputs with custom attn_mask,
+        # Reference: https://github.com/pytorch/pytorch/issues/112577.
+        if query_states.device.type == "cuda" and causal_mask is not None:
+            query_states = query_states.contiguous()
+            key_states = key_states.contiguous()
+            value_states = value_states.contiguous()
+        
+        # We dispatch to SDPA's Flash Attention or Efficient kernels via this `is_causal` if statement instead of an inline conditional assignment
+        # in SDPA to support both torch.compile's dynamic shapes and full graph options. An inline conditional prevents dynamic shapes from compiling.
+        is_causal = True if causal_mask is None and q_len > 1 else False
 
 
-            # print(query_states.shape, key_states.shape, value_states.shape)
-            attn_output = torch.nn.functional.scaled_dot_product_attention(
-                query_states,
-                key_states,
-                value_states,
-                attn_mask=causal_mask,
-                dropout_p=self.attention_dropout if self.training else 0.0,
-                is_causal=is_causal,
-            )
+        # print(query_states.shape, key_states.shape, value_states.shape)
+        attn_output = torch.nn.functional.scaled_dot_product_attention(
+            query_states,
+            key_states,
+            value_states,
+            attn_mask=causal_mask,
+            dropout_p=self.attention_dropout if self.training else 0.0,
+            is_causal=is_causal,
+        )
 
         attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.view(bsz, q_len, self.hidden_size)

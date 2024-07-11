@@ -77,6 +77,14 @@ class TrainingArguments(transformers.TrainingArguments):
         default=2,
         metadata={"help": "How many bits to use."}
     )
+    kbit: int = field(
+        default=2,
+        metadata={"help": "How many bits to use for key."}
+    )
+    vbit: int = field(
+        default=2,
+        metadata={"help": "How many bits to use for value."}
+    )
     q_group_size: int = field(
         default=128,
         metadata={"help": "Quantization Group Size."}
@@ -286,8 +294,8 @@ def train():
         torch_dtype=torch.bfloat16,
         quantize_k=True,
         quantize_v=True,
-        kbit=training_args.bits,
-        vbit=training_args.bits,
+        kbit=training_args.kbit,
+        vbit=training_args.vbit,
         sparsity_ratio=0.0,
         group_size=training_args.q_group_size,
         device_map=device_map,

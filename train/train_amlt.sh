@@ -1,4 +1,5 @@
-export MODEL_PATH='/dev/shm/Meta-Llama-3-8B/'
+
+export MODEL_PATH=NousResearch/Meta-Llama-3-8B
 export MODEL_NAME=Meta-Llama-3-8B
 
 export DATA_PATH=$1
@@ -8,15 +9,20 @@ export NUM_TRAIN_EPOCHS=$4
 export QUANT_BIT=$5
 export KBIT=$6
 export VBIT=$7
+
 export MASTER_ADDR="localhost"
 export MASTER_PORT="1321"
 export GLOO_SOCKET_IFNAME="lo"
 export NCCL_SOCKET_IFNAME="lo"
-export WANDB_DISABLED=true  
+export WANDB_DISABLED=true
 export TOKENIZERS_PARALLELISM=false
 
-deepspeed --include localhost:4,5,6,7 \
-     train4attn.py \
+export NUM_GPUS=4
+
+# --clip BitDistiller/quantization/clip_cache/WizardCoder-7B/7b-int2-g128-twoclip.pt
+# --evaluation_strategy "steps"
+# --eval_steps 4
+deepspeed --num_gpus=${NUM_GPUS} train4attn.py \
     --model_name_or_path ${MODEL_PATH} \
     --data_path ${DATA_PATH} \
     --model_max_length 8192 \
@@ -30,10 +36,10 @@ deepspeed --include localhost:4,5,6,7 \
     --gradient_accumulation_steps 1 \
     --gradient_checkpointing True \
     --evaluation_strategy "steps" \
-    --eval_steps 1000 \
+    --eval_steps 400 \
     --load_best_model_at_end True \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 400 \
     --save_total_limit 15 \
     --learning_rate 8e-6 \
     --lr_scheduler_type "constant" \
