@@ -71,3 +71,4 @@ cover/
 *.yaml
 .amltconfig
 amlt/
+*.ipynb

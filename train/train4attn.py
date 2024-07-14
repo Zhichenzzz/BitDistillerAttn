@@ -2,7 +2,7 @@ import sys
 sys.path.append("../quantization")
 from qlinear import QLinear, convertModelToQuant
 from clip_utils import apply_clip
-sys.path.append("../modified_Module/llama")
+sys.path.append("../models/llama")
 from modeling_llama import LlamaForCausalLM as myLlamaForCausalLM
 
 import os

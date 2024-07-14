@@ -1,4 +1,4 @@
-export MODEL_PATH='/dev/shm/Meta-Llama-3-8B/'
+export MODEL_PATH='/dev/shm/Meta-Llama-3-8B-Instruct'
 export MODEL_NAME=Meta-Llama-3-8B
 
 export DATA_PATH=$1
@@ -15,7 +15,7 @@ export NCCL_SOCKET_IFNAME="lo"
 export WANDB_DISABLED=true  
 export TOKENIZERS_PARALLELISM=false
 
-deepspeed --include localhost:4,5,6,7 \
+deepspeed --include localhost:2,3,4 \
      train4attn.py \
     --model_name_or_path ${MODEL_PATH} \
     --data_path ${DATA_PATH} \
@@ -27,13 +27,13 @@ deepspeed --include localhost:4,5,6,7 \
     --seed 42 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
     --evaluation_strategy "steps" \
-    --eval_steps 1000 \
+    --eval_steps 200 \
     --load_best_model_at_end True \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 200 \
     --save_total_limit 15 \
     --learning_rate 8e-6 \
     --lr_scheduler_type "constant" \
