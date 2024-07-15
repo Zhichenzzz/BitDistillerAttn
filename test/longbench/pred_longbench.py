@@ -224,8 +224,8 @@ if __name__ == '__main__':
         datasets = ["gov_report"]
     else:
         # datasets = ["triviaqa", "qasper", "trec", "samsum", "lcc", "repobench-p", "qmsum", "multi_news"]
-        # datasets = ["narrativeqa", "qasper", "multifieldqa_en",  "hotpotqa", "2wikimqa", "musique", \
-        datasets = ["gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum",  \
+        datasets = ["narrativeqa", "qasper", "multifieldqa_en",  "hotpotqa", "2wikimqa", "musique", \
+                    "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum",  \
                     "passage_count", "lcc", "repobench-p"]
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
     dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
@@ -243,9 +243,9 @@ if __name__ == '__main__':
             out_path = f"pred_e/{model_name}_ft11/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/{dataset}.jsonl"
         else:
             data = load_dataset('THUDM/LongBench', dataset, split='test')
-            if not os.path.exists(f"pred/{model_name}_ft22/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}"):
-                os.makedirs(f"pred/{model_name}_ft22/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}")
-            out_path = f"pred/{model_name}_ft22/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/{dataset}.jsonl"
+            if not os.path.exists(f"pred/{model_name}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}"):
+                os.makedirs(f"pred/{model_name}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}")
+            out_path = f"pred/{model_name}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/{dataset}.jsonl"
         prompt_format = dataset2prompt[dataset]
         max_gen = dataset2maxlen[dataset]
         data_all = [data_sample for data_sample in data]

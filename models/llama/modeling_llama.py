@@ -668,11 +668,11 @@ class LlamaSdpaAttention(LlamaAttention):
         cos, sin = self.rotary_emb(value_states, position_ids)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
 
-        # if q_len == 1:
-        if self.config.quantize_k:
-            key_states = self.k_quantizer(key_states)
-        if self.config.quantize_v:
-            value_states = self.v_quantizer(value_states)
+        if q_len == 1:
+            if self.config.quantize_k:
+                key_states = self.k_quantizer(key_states)
+            if self.config.quantize_v:
+                value_states = self.v_quantizer(value_states)
 
 
         if past_key_value is not None:
