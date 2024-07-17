@@ -9,6 +9,6 @@
     "vicuna-v1.5-7b-16k": "lmsys/vicuna-7b-v1.5-16k",
     "Yarn-Llama-2-7b-128k": "/dev/shm/yarn_llama2_7b_128k",
     "Meta-Llama-3-8B": "/dev/shm/zhichenz/ckpts/Meta-Llama-3-8B/int2-g32-test/",
-    "Meta-Llama-3-8B-Instruct": "/dev/shm/zhichenz/ckpts/Meta-Llama-3-8B-Instruct/k2v2-g32/",
-    "Mistral-7B-v0.3": "/dev/shm/Mistral-7B-v0.3"
+    "Meta-Llama-3-8B-Instruct": "/dev/shm/Meta-Llama-3-8B-Instruct/",
+    "Mistral-7B-v0.1": "/dev/shm/Mistral-7B-v0.1"
 }

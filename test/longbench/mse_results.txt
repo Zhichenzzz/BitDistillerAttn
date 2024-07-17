@@ -1,0 +1,73 @@
+--2bit--
+
+File: key_states_layer_0.pt
+MSE per token: 0.9180
+MSE per channel: 0.3496
+
+File: key_states_layer_10.pt
+MSE per token: 2.0000
+MSE per channel: 1.2500
+
+File: key_states_layer_11.pt
+MSE per token: 1.9531
+MSE per channel: 1.1562
+
+File: key_states_layer_16.pt
+MSE per token: 2.1719
+MSE per channel: 1.1641
+
+File: key_states_layer_25.pt
+MSE per token: 1.8594
+MSE per channel: 0.7656
+
+File: key_states_layer_31.pt
+MSE per token: 1.9922
+MSE per channel: 0.6992
+
+File: value_states_layer_16.pt
+MSE per token: 0.0214
+MSE per channel: 0.0325
+
+File: value_states_layer_25.pt
+MSE per token: 0.0518
+MSE per channel: 0.0781
+
+--1bit--
+
+File: key_states_layer_0.pt
+MSE per token: 1.9688
+MSE per channel: 1.6719
+
+File: key_states_layer_10.pt
+MSE per token: 4.3750
+MSE per channel: 4.6250
+
+File: key_states_layer_11.pt
+MSE per token: 3.9531
+MSE per channel: 4.0938
+
+File: key_states_layer_16.pt
+MSE per token: 4.7500
+MSE per channel: 4.6875
+
+File: key_states_layer_25.pt
+MSE per token: 3.4688
+MSE per channel: 3.1094
+
+File: key_states_layer_31.pt
+MSE per token: 3.3281
+MSE per channel: 3.0000
+
+File: value_states_layer_16.pt
+MSE per token: 0.0623
+MSE per channel: 0.0649
+
+File: value_states_layer_25.pt
+MSE per token: 0.1562
+MSE per channel: 0.1611
+
+
+
+
+
+

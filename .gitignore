@@ -72,3 +72,4 @@ cover/
 .amltconfig
 amlt/
 *.ipynb
+*.pt

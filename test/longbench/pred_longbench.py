@@ -9,7 +9,8 @@ sys.path.append("../../models/llama")
 from modeling_llama import LlamaForCausalLM as myLlamaForCausalLM
 # from models.yarn_llama.modeling_llama_together_yarn import LlamaForCausalLM as yarnLlamaForCausalLM
 # from models.chatglm.modeling_chatglm import ChatGPT3LMHeadModel
-# from models.mistral.modeling_mistral import MistralForCausalLM
+sys.path.append("../../models/mistral")
+from modeling_mistral import MistralForCausalLM
 
 from tqdm import tqdm
 import numpy as np
@@ -21,8 +22,7 @@ import torch.multiprocessing as mp
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default=None, choices=["llama2-7b-chat-4k", "longchat-v1.5-7b-32k", "xgen-7b-8k", "internlm-7b-8k", "chatglm2-6b", "chatglm2-6b-32k", "chatglm3-6b-32k", "vicuna-v1.5-7b-16k", "Yarn-Llama-2-7b-128k", "Meta-Llama-3-8B", 
-                                                                    "Mistral-7B-v0.3","Meta-Llama-3-8B-Instruct"], help="Model name")
+    parser.add_argument('--model', type=str, default=None, help="Model name")
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     parser.add_argument('--maxlen', type=int, default=None)
     parser.add_argument('--quantize_k', type=bool, default=False)
@@ -224,9 +224,9 @@ if __name__ == '__main__':
         datasets = ["gov_report"]
     else:
         # datasets = ["triviaqa", "qasper", "trec", "samsum", "lcc", "repobench-p", "qmsum", "multi_news"]
-        datasets = ["narrativeqa", "qasper", "multifieldqa_en",  "hotpotqa", "2wikimqa", "musique", \
-                    "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum",  \
-                    "passage_count", "lcc", "repobench-p"]
+        datasets = [
+                "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum",  \
+                "lcc", "repobench-p"]
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
     dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
     dataset2maxlen = json.load(open("config/dataset2maxlen.json", "r"))
@@ -259,4 +259,4 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
 
-# CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 python pred_longbench.py --model Meta-Llama-3-8B-Instruct --maxlen 8192 --quantize_k True --quantize_v True --kbit 2 --vbit 2 --group_size 32
+# CUDA_VISIBLE_DEVICES=4,5,6,7 python pred_longbench.py --model Mistral-7B-v0.1 --maxlen 8192

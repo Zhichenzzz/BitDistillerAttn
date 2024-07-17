@@ -1,5 +1,8 @@
 from datasets import load_dataset
 import random
+import io
+import json
+import logging
 
 ALPACA_PROMPT_DICT = {
     "prompt_input": (
@@ -55,7 +58,31 @@ MATH_PROMPT_DICT = {
     )
 }
 
-
+LONG_PROMPT_DICT = {
+    "prompt_input": (
+        "Below is an instruction that describes a task, paired with an input that provides further context. "
+        "Write a response that appropriately completes the request.\n\n"
+        "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
+    ),
+    "prompt_no_input": (
+        "Below is an instruction that describes a task. "
+        "Write a response that appropriately completes the request.\n\n"
+        "### Instruction:\n{instruction}\n\n### Response:"
+    ),
+    "prompt_no_input_llama2":(
+        "[INST] <<SYS>>\n"
+        "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\n"
+        "If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n"
+        "<</SYS>> \n\n {instruction} [/INST]"
+    ),
+    "prompt_input_llama2": (
+        "[INST] <<SYS>>\n"
+        "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\n"
+        "If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n"
+        "<</SYS>> \n\n {instruction} \n{input} [/INST]"
+    ),
+    "prompt_llama2": "[INST]{instruction}[/INST]"
+}
 
 
 def get_gen_dataset(dataset_name, max_sample=None, tokenizer=None):
@@ -75,6 +102,8 @@ def get_gen_dataset(dataset_name, max_sample=None, tokenizer=None):
         return get_code_dataset(max_sample, tokenizer)
     elif dataset_name == "math":
         return get_math_dataset(max_sample, tokenizer)
+    elif dataset_name == "longalpaca":
+        return get_longalpaca_dataset(max_sample, tokenizer)
     else:
         raise ValueError(f"{dataset_name} not implement yet")
 
@@ -211,5 +240,35 @@ def get_math_dataset(max_sample, tokenizer):
     sources = [prompt_no_input.format_map(example) for example in math_dataset]
 
     targets = [f"{example['response']}{tokenizer.eos_token}" for example in math_dataset]
+
+    return extract_random_dataset(sources, targets, max_sample)
+
+def _make_r_io_base(f, mode: str):
+    if not isinstance(f, io.IOBase):
+        f = open(f, mode=mode)
+    return f
+
+def jload(f, mode="r"):
+    """Load a .json file into a dictionary."""
+    f = _make_r_io_base(f, mode)
+    jdict = json.load(f)
+    f.close()
+    return jdict
+
+def get_longalpaca_dataset(max_sample, tokenizer):
+    logging.warning("Loading data...")
+    list_data_dict = jload("./LongAlpaca-12k.json")
+
+    logging.warning("Formatting inputs...")
+
+    prompt_input, prompt_no_input = LONG_PROMPT_DICT["prompt_input_llama2"], LONG_PROMPT_DICT["prompt_llama2"]
+    sources = [
+        prompt_input.format_map(example) if example.get("input", "") != "" else prompt_no_input.format_map(example)
+        for example in list_data_dict
+    ]
+
+    targets = [f"{example['output']}{tokenizer.eos_token}" for example in list_data_dict]
+
+    logging.warning("Tokenizing inputs... This may take some time...")
 
     return extract_random_dataset(sources, targets, max_sample)

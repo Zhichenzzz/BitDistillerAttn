@@ -90,7 +90,7 @@ if __name__ == '__main__':
     if args.e:
         path = f"pred_e/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/"
     else:
-        path = f"pred/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/"
+        path = f"pred/{args.model}_c/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/"
     all_files = os.listdir(path)
     print("Evaluating on:", all_files)
     for filename in all_files:
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     if args.e:
         out_path = f"pred_e/{args.model}_asym/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
     else:
-        out_path = f"pred/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
+        out_path = f"pred/{args.model}_c/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
     with open(out_path, "w") as f:
         json.dump(scores, f, ensure_ascii=False, indent=4)
 

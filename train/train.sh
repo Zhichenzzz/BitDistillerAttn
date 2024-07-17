@@ -1,5 +1,5 @@
-export MODEL_PATH='/dev/shm/Meta-Llama-3-8B-Instruct'
-export MODEL_NAME=Meta-Llama-3-8B
+export MODEL_PATH='/dev/shm/Mistral-7B-v0.1'
+# export MODEL_NAME=Meta-Llama-3-8B
 
 export DATA_PATH=$1
 export SAVE_PATH=$2
@@ -14,8 +14,9 @@ export GLOO_SOCKET_IFNAME="lo"
 export NCCL_SOCKET_IFNAME="lo"
 export WANDB_DISABLED=true  
 export TOKENIZERS_PARALLELISM=false
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-deepspeed --include localhost:2,3,4 \
+deepspeed --include localhost:0,1,2,3\
      train4attn.py \
     --model_name_or_path ${MODEL_PATH} \
     --data_path ${DATA_PATH} \
@@ -25,8 +26,8 @@ deepspeed --include localhost:2,3,4 \
     --num_train_epochs ${NUM_TRAIN_EPOCHS} \
     --bf16 True \
     --seed 42 \
-    --per_device_train_batch_size 4 \
-    --per_device_eval_batch_size 4 \
+    --per_device_train_batch_size 8 \
+    --per_device_eval_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --gradient_checkpointing True \
     --evaluation_strategy "steps" \
