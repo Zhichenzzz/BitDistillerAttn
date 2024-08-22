@@ -1,0 +1,16 @@
+2024-07-10 03:13:50,898:amlt-code-runner:INFO - Not removing AzureML's cd commands from /etc/profile due to an error: [Errno 13] Permission denied: '/etc/profile'
+2024-07-10 03:13:50,898:amlt-code-runner:WARNING - Environment variable 'NCCL_SOCKET_IFNAME' already set to 'eth0', not changing to '^docker0,lo'
+2024-07-10 03:13:50,898:amlt-code-runner:INFO - RANK = 0
+2024-07-10 03:13:50,898:amlt-code-runner:INFO - LOCAL_RANK = 0
+2024-07-10 03:13:50,898:amlt-code-runner:INFO - WORLD_SIZE = 1
+2024-07-10 03:13:50,898:amlt-code-runner:INFO - MASTER_ADDR = localhost
+2024-07-10 03:13:50,898:amlt-code-runner:INFO - MASTER_PORT = 6105
+2024-07-10 03:13:50,900:amlt-code-runner:WARNING - Installing amlt runtime dependencies: ['wrapt', 'azure-identity', 'python-dateutil', 'pytz'] into /tmp/amlt-user-base
+2024-07-10 03:13:52,675:amlt-code-runner:INFO - Executing ./amlt_setup.sh
+2024-07-10 03:13:52,759:background_dirsync:INFO - Starting directory syncer from '/scratch/azureml/cr/j/cc64c1c8c94848b0a34592fd25e485db/exe/wd/logs' to '/scratch/amlt_code/outputs/logs', every 30.000000s
+2024-07-10 03:13:53,635:background_dirsync:INFO - Flush sync '/scratch/azureml/cr/j/cc64c1c8c94848b0a34592fd25e485db/exe/wd/logs' to '/scratch/amlt_code/outputs/logs'
+2024-07-10 03:13:53,637:background_dirsync:INFO - Clean shutdown of directory syncer from '/scratch/azureml/cr/j/cc64c1c8c94848b0a34592fd25e485db/exe/wd/logs' to '/scratch/amlt_code/outputs/logs'
+2024-07-10 03:13:52,754:background_dirsync:INFO - Starting directory syncer from '/scratch/amlt_code/outputs' to '/mnt/output/projects/bitdistillerattn/amlt-results/7279394438.88684-2a55cf0c-e5fd-4744-a0a2-fce9e6b88d7c', every 30.000000s
+2024-07-10 03:13:53,648:background_dirsync:INFO - Flush sync '/scratch/amlt_code/outputs' to '/mnt/output/projects/bitdistillerattn/amlt-results/7279394438.88684-2a55cf0c-e5fd-4744-a0a2-fce9e6b88d7c'
+2024-07-10 03:13:55,303:background_dirsync:INFO - Clean shutdown of directory syncer from '/scratch/amlt_code/outputs' to '/mnt/output/projects/bitdistillerattn/amlt-results/7279394438.88684-2a55cf0c-e5fd-4744-a0a2-fce9e6b88d7c'
+2024-07-10 03:13:55,315:amlt-code-runner:INFO - Executing ./amlt_run.sh

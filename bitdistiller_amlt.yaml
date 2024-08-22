@@ -1,0 +1,61 @@
+description: AMLT Testing
+
+target:
+  # run "amlt target list amlk8s" to list the names of available AMLK8s targets
+  service: sing 
+  name: msrresrchvc
+
+environment:
+  image: amlt-sing/acpt-2.2.1-py3.10-cuda12.1
+  setup:
+    - bash -c "pip install -r requirements.txt"
+
+storage:
+  output:
+    storage_account_name: fastnn
+    container_name: v-zhizeng
+    mount_dir: /mnt/output
+    is_output: True
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: .
+
+
+
+# env_defaults:
+#   NODES: 2
+#   GPUS: 8
+#   MEM: 80
+
+jobs:
+# by default, enables mpi and returns N processes per node where N is number of gpus
+# To be able to SSH to the remote host, must set "mpi: true" due to possible bugs in AMLT.
+- name: bitdistillerAttn-1,1
+  sku: 80G1-A100
+  priority: high
+  mpi: false
+  process_count_per_node: 1
+  sla_tier: Premium
+  command:
+  - bash train_amlt.sh ../data/generation/datasets/Meta-Llama-3-8B/mix_wiki_alpaca_8000.json /mnt/output/bitdistiller/ckpts/Meta-Llama-3-8B/k1v1-g32/ /mnt/output/bitdistiller/logs/Meta-Llama-3-8B/k1v1-g32/ 4 1 1 1
+
+- name: bitdistillerAttn-1,2
+  sku: 80G1-A100
+  priority: high
+  mpi: false
+  process_count_per_node: 1
+  sla_tier: Premium
+  command:
+  - bash train_amlt.sh ../data/generation/datasets/Meta-Llama-3-8B/mix_wiki_alpaca_8000.json /mnt/output/bitdistiller/ckpts/Meta-Llama-3-8B/k1v2-g32/ /mnt/output/bitdistiller/logs/Meta-Llama-3-8B/k1v2-g32/ 4 1 1 2
+
+- name: bitdistillerAttn-2,1
+  sku: 80G1-A100
+  priority: high
+  mpi: false
+  process_count_per_node: 1
+  sla_tier: Premium
+  command:
+  - bash train_amlt.sh ../data/generation/datasets/Meta-Llama-3-8B/mix_wiki_alpaca_8000.json /mnt/output/bitdistiller/ckpts/Meta-Llama-3-8B/k2v1-g32/ /mnt/output/bitdistiller/logs/Meta-Llama-3-8B/k2v1-g32/ 4 1 2 1
+
