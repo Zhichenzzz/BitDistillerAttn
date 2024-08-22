@@ -146,6 +146,7 @@ def load_model_and_tokenizer(path, model_name, device):
             trust_remote_code=True,
         ).to(device)
     elif "Llama-3" in model_name:
+        print("Loading Llama-3")
         # replace_llama_attn_with_flash_attn()
         tokenizer = PreTrainedTokenizerFast.from_pretrained(path, trust_remote_code=True)
         model = myLlamaForCausalLM.from_pretrained(
@@ -223,10 +224,8 @@ if __name__ == '__main__':
     if args.e:
         datasets = ["gov_report"]
     else:
-        # datasets = ["triviaqa", "qasper", "trec", "samsum", "lcc", "repobench-p", "qmsum", "multi_news"]
-        datasets = [
-                "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum",  \
-                "lcc", "repobench-p"]
+        datasets = ["multifieldqa_en",  "qmsum", "triviaqa", "passage_count", "repobench-p"]
+            # datasets = ["multifieldqa_en", "hotpotqa", "2wikimqa"]
     # we design specific prompt format and max generation length for each task, feel free to modify them to optimize model output
     dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
     dataset2maxlen = json.load(open("config/dataset2maxlen.json", "r"))
@@ -259,4 +258,4 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
 
-# CUDA_VISIBLE_DEVICES=4,5,6,7 python pred_longbench.py --model Mistral-7B-v0.1 --maxlen 8192
+# CUDA_VISIBLE_DEVICES=4,5,6,7 python pred_longbench.py --model Meta-Llama-3.1-8B --maxlen 125500 --quantize_k True --quantize_v True --kbit 2 --vbit 1 --sparsity_ratio 0.0 --group_size 32

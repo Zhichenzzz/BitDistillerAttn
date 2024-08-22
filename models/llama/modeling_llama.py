@@ -335,7 +335,7 @@ class LlamaAttention(nn.Module):
         self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
         self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
         if config.quantize_k:
-            self.k_quantizer = SteIntAsymQuantizerPerChannel(q_group_size=config.group_size, quant_bit=config.kbit)
+            self.k_quantizer = SteIntAsymQuantizer(q_group_size=config.group_size, quant_bit=config.kbit)
         if config.quantize_v:
             self.v_quantizer = SteIntAsymQuantizer(q_group_size=config.group_size, quant_bit=config.vbit)
         self.o_proj = nn.Linear(self.hidden_size, self.hidden_size, bias=config.attention_bias)
@@ -702,19 +702,21 @@ class LlamaSdpaAttention(LlamaAttention):
         if q_len == 1:
             if self.config.quantize_v:
                 value_states = self.v_quantizer(value_states)
+            if self.config.quantize_k:
+                key_states = self.k_quantizer(key_states)
 
         if past_key_value is not None:
             # sin and cos are specific to RoPE models; cache_position needed for the static cache
             cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}
             key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
 
-        if q_len == 1:
-            self.new_key_num += 1
-            if self.new_key_num % 32 == 0:
-                if self.config.quantize_k:
-                    new_key_states = key_states[:, :, -32:, :]
-                    new_key_states = self.k_quantizer(new_key_states)
-                    key_states = torch.cat((key_states[:, :, :-32, :], new_key_states), dim=2)
+        # if q_len == 1:
+        #     self.new_key_num += 1
+        #     if self.new_key_num % 32 == 0:
+        #         if self.config.quantize_k:
+        #             new_key_states = key_states[:, :, -32:, :]
+        #             new_key_states = self.k_quantizer(new_key_states)
+        #             key_states = torch.cat((key_states[:, :, :-32, :], new_key_states), dim=2)
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)

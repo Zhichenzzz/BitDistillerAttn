@@ -21,7 +21,7 @@
 
 import math
 from typing import List, Optional, Tuple, Union
-
+import inspect
 import torch
 import torch.utils.checkpoint
 from torch import nn
@@ -103,7 +103,32 @@ class SteIntAsymQuantizer(nn.Module):
         x = x.reshape(org_w_shape)
 
         return x
-    
+
+class SteIntAsymQuantizerPerChannel(nn.Module):
+    def __init__(self, q_group_size=128, quant_bit=2):
+        super().__init__()
+        self.q_group_size = q_group_size
+        self.bit = quant_bit
+    def forward(self, x):
+        org_w_shape = x.shape
+
+        max_val = x.amax(dim=-2, keepdim=True)
+        min_val = x.amin(dim=-2, keepdim=True)
+        max_int = 2 ** self.bit - 1
+        min_int = 0
+        scales = (max_val - min_val).clamp(min=1e-5) / max_int
+        zeros = (-torch.round(min_val / scales)).clamp_(min_int, max_int)
+
+        assert torch.isnan(scales).sum() == 0
+        assert torch.isnan(x).sum() == 0
+
+        x = (torch.clamp(Round.apply(x / scales) +
+                         zeros, min_int, max_int) - zeros) * scales
+        assert torch.isnan(x).sum() == 0
+
+        x = x.reshape(org_w_shape)
+
+        return x
 # Copied from transformers.models.llama.modeling_llama.LlamaRMSNorm with Llama->Mistral
 class MistralRMSNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-6):
@@ -239,6 +264,7 @@ class MistralAttention(nn.Module):
         self.max_position_embeddings = config.max_position_embeddings
         self.rope_theta = config.rope_theta
         self.is_causal = True
+        self.new_key_num = 0
 
         if (self.head_dim * self.num_heads) != self.hidden_size:
             raise ValueError(
@@ -498,11 +524,11 @@ class MistralSdpaAttention(MistralAttention):
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
 
-        if self.config.quantize_k:
-            print("1111111")
-            key_states = self.k_quantizer(key_states)
-        if self.config.quantize_v:
-            value_states = self.v_quantizer(value_states)
+        if q_len == 1:
+            if self.config.quantize_v:
+                value_states = self.v_quantizer(value_states)
+            if self.config.quantize_k:
+                key_states = self.k_quantizer(key_states)
 
         cos, sin = self.rotary_emb(value_states, position_ids)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
@@ -511,6 +537,14 @@ class MistralSdpaAttention(MistralAttention):
             # sin and cos are specific to RoPE models; cache_position needed for the static cache
             cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}
             key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
+        
+        # if q_len == 1:
+        #     self.new_key_num += 1
+        #     if self.new_key_num % 32 == 0:
+        #         if self.config.quantize_k:
+        #             new_key_states = key_states[:, :, -32:, :]
+        #             new_key_states = self.k_quantizer(new_key_states)
+        #             key_states = torch.cat((key_states[:, :, :-32, :], new_key_states), dim=2)
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)

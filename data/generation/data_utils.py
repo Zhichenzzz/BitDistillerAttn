@@ -261,7 +261,7 @@ def get_longalpaca_dataset(max_sample, tokenizer):
 
     logging.warning("Formatting inputs...")
 
-    prompt_input, prompt_no_input = LONG_PROMPT_DICT["prompt_input_llama2"], LONG_PROMPT_DICT["prompt_llama2"]
+    prompt_input, prompt_no_input = LONG_PROMPT_DICT["prompt_input"], LONG_PROMPT_DICT["prompt_no_input"]
     sources = [
         prompt_input.format_map(example) if example.get("input", "") != "" else prompt_no_input.format_map(example)
         for example in list_data_dict

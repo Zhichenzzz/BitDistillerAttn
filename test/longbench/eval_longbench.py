@@ -41,8 +41,7 @@ dataset2metric = {
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default=None, choices=["llama2-7b-chat-4k", "longchat-v1.5-7b-32k", "xgen-7b-8k", "internlm-7b-8k", "chatglm2-6b", "chatglm2-6b-32k", "chatglm3-6b-32k", "vicuna-v1.5-7b-16k", "Yarn-Llama-2-7b-128k", "Meta-Llama-3-8B"
-                                                                    ,"Mistral-7B-v0.3","Meta-Llama-3-8B-Instruct"])
+    parser.add_argument('--model', type=str, default=None)
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     parser.add_argument('--maxlen', type=int, default=None)
     parser.add_argument('--quantize_k', type=bool, default=False)
@@ -90,7 +89,7 @@ if __name__ == '__main__':
     if args.e:
         path = f"pred_e/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/"
     else:
-        path = f"pred/{args.model}_c/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/"
+        path = f"pred/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/"
     all_files = os.listdir(path)
     print("Evaluating on:", all_files)
     for filename in all_files:
@@ -112,10 +111,10 @@ if __name__ == '__main__':
             score = scorer(dataset, predictions, answers, all_classes)
         scores[dataset] = score
     if args.e:
-        out_path = f"pred_e/{args.model}_asym/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
+        out_path = f"pred_e/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
     else:
-        out_path = f"pred/{args.model}_c/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
+        out_path = f"pred/{args.model}/K{args.kbit}V{args.vbit}_sp{args.sparsity_ratio}_g{args.group_size}/result.json"
     with open(out_path, "w") as f:
         json.dump(scores, f, ensure_ascii=False, indent=4)
 
-# python eval_longbench.py --model Meta-Llama-3-8B-Instruct --maxlen 8192 --quantize_k True --quantize_v True --kbit 2 --vbit 2 --group_size 32
+# python eval_longbench.py --model Mistral-7B-ft21 --maxlen 8192 --quantize_k True --quantize_v True --kbit 2 --vbit 1 --group_size 32
