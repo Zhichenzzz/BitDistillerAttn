@@ -9,5 +9,7 @@
     "vicuna-v1.5-7b-16k": 15500,
     "Yarn-Llama-2-7b-128k": 125500,
     "Meta-Llama-3-8B": 7500,
-    "Mistral-7B-v0.1": 7500
+    "Meta-Llama-3.1-8B": 125500,
+    "Mistral-7B-v0.1": 32500,
+    "Mistral-7B-ft22": 32500
 }

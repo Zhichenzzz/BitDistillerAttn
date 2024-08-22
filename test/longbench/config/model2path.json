@@ -10,5 +10,8 @@
     "Yarn-Llama-2-7b-128k": "/dev/shm/yarn_llama2_7b_128k",
     "Meta-Llama-3-8B": "/dev/shm/zhichenz/ckpts/Meta-Llama-3-8B/int2-g32-test/",
     "Meta-Llama-3-8B-Instruct": "/dev/shm/Meta-Llama-3-8B-Instruct/",
-    "Mistral-7B-v0.1": "/dev/shm/Mistral-7B-v0.1"
+    "Mistral-7B-v0.1": "/dev/shm/Mistral-7B-v0.1",
+    "Mistral-7B-ft22": "/dev/shm/zhichenz/ckpts/Mistral-7B-v0.1/k2v2g32",
+    "Mistral-7B-ft21": "/dev/shm/zhichenz/ckpts/Mistral-7B-v0.1/k2v1g32",
+    "Meta-Llama-3.1-8B": "/dev/shm/Meta-Llama-3.1-8B"
 }
