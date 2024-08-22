@@ -4,6 +4,8 @@ from qlinear import QLinear, convertModelToQuant
 from clip_utils import apply_clip
 sys.path.append("../models/llama")
 from modeling_llama import LlamaForCausalLM as myLlamaForCausalLM
+sys.path.append("../models/mistral")
+from modeling_mistral import MistralForCausalLM as myMistralForCausalLM
 
 import os
 import copy
@@ -289,17 +291,31 @@ def train():
         max_memory = {'': max_memory[local_rank]}
 
     print(f"loading {model_args.model_name_or_path} model")
-    model = myLlamaForCausalLM.from_pretrained(
-        model_args.model_name_or_path,
-        torch_dtype=torch.bfloat16,
-        quantize_k=True,
-        quantize_v=True,
-        kbit=training_args.kbit,
-        vbit=training_args.vbit,
-        sparsity_ratio=0.0,
-        group_size=training_args.q_group_size,
-        device_map=device_map,
-    )
+    if "llama" in model_args.model_name_or_path.lower():
+        model = myLlamaForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            torch_dtype=torch.bfloat16,
+            quantize_k=True,
+            quantize_v=True,
+            kbit=training_args.kbit,
+            vbit=training_args.vbit,
+            sparsity_ratio=0.0,
+            group_size=training_args.q_group_size,
+            device_map=device_map,
+        )
+    elif "mistral" in model_args.model_name_or_path.lower():
+        print("loading Mistral Model")
+        model = myMistralForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            torch_dtype=torch.bfloat16,
+            quantize_k=True,
+            quantize_v=True,
+            kbit=training_args.kbit,
+            vbit=training_args.vbit,
+            sparsity_ratio=0.0,
+            group_size=training_args.q_group_size,
+            device_map=device_map,
+        )
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_args.model_name_or_path,

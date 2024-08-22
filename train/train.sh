@@ -16,11 +16,11 @@ export WANDB_DISABLED=true
 export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-deepspeed --include localhost:0,1,2,3\
+deepspeed --include localhost:4,5,6,7\
      train4attn.py \
     --model_name_or_path ${MODEL_PATH} \
     --data_path ${DATA_PATH} \
-    --model_max_length 8192 \
+    --model_max_length 32768 \
     --output_dir ${SAVE_PATH} \
     --logging_dir ${LOGGING_DIR} \
     --num_train_epochs ${NUM_TRAIN_EPOCHS} \
@@ -28,13 +28,13 @@ deepspeed --include localhost:0,1,2,3\
     --seed 42 \
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 8 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 4 \
     --gradient_checkpointing True \
     --evaluation_strategy "steps" \
-    --eval_steps 200 \
+    --eval_steps 2500 \
     --load_best_model_at_end True \
     --save_strategy "steps" \
-    --save_steps 200 \
+    --save_steps 2500 \
     --save_total_limit 15 \
     --learning_rate 8e-6 \
     --lr_scheduler_type "constant" \

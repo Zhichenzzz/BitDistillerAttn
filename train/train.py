@@ -1,7 +1,6 @@
 import sys
 sys.path.append("../quantization")
 from qlinear import QLinear, convertModelToQuant
-from clip_utils import apply_clip
 
 import os
 import copy
@@ -317,15 +316,6 @@ def train():
         print("converting the model to qat, this may take a while...")
         model, _ = convertModelToQuant(model, compute_dtype=torch.bfloat16, quant_type=training_args.quant_type, q_group_size=training_args.q_group_size)
 
-    if training_args.clip is not None:
-        q_config = {
-            "zero_point": True,  # by default True
-            "q_group_size": training_args.q_group_size,  # whether to use group quantization
-        }
-        print("Loading pre-computed Clipping results from", training_args.clip)
-        clip_results = torch.load(training_args.clip)
-        apply_clip(model, clip_results)
-        print("Clipping init successfully!")
 
     if training_args.train_kd:
         print("loading Teacher Model...")
